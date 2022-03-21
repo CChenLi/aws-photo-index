@@ -8,17 +8,11 @@ Resources:
       FunctionName: photo-LF1
       Handler: lambda_function.lambda_handler
       Runtime: python3.8
-      CodeUri: ./LambdaCode
-      Description: 'Lambda function for CD Demo'
+      CodeUri: ./LF1.zip
+      Description: 'Index Function'
       MemorySize: 128
       Timeout: 30
-      Role: 'arn:aws:iam::409408139754:role/service-role/codepipeline_lambda-role-yuqyw2bl'
-      Events:
-        getAZsAPI:
-          Type: Api
-          Properties:
-            Path: /getazs
-            Method: get
+      Role: 'arn:aws:iam::682475076944:role/photo-LF'
       Environment:
         Variables:
           REGION: us-east-1
