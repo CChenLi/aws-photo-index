@@ -13,6 +13,12 @@ Resources:
       MemorySize: 128
       Timeout: 30
       Role: 'arn:aws:iam::682475076944:role/photo-LF'
+      Events:
+        S3Event:
+          Type: S3
+          Properties:
+            Bucket:
+            Events: s3:ObjectCreated:*
       Environment:
         Variables:
           REGION: us-east-1
