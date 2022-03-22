@@ -2,8 +2,9 @@ import json
 import boto3
 from requests_aws4auth import AWS4Auth
 from opensearchpy import OpenSearch, RequestsHttpConnection
+import time
 
-S3 = "https://index-photos-chenli.s3.amazonaws.com/"
+S3 = "https://photo-s3-chenli.s3.amazonaws.com/"
 s3_client = boto3.client('s3')
 
 lex_client = boto3.client('lex-runtime')
@@ -12,7 +13,7 @@ region = 'us-east-1' # For example, us-west-1
 service = 'es'
 credentials = boto3.Session().get_credentials()
 awsauth = AWS4Auth(credentials.access_key, credentials.secret_key, region, service, session_token=credentials.token)
-host = "search-photo-bs2ezi4qxnq24fuvttqxhu5mma.us-east-1.es.amazonaws.com"
+host = "search-photo-search-hyksul2bdeyoenyvplrowctj74.us-east-1.es.amazonaws.com"
 es_client = OpenSearch(
     hosts = [{'host': host, 'port': 443}],
     http_auth = awsauth,
@@ -37,9 +38,9 @@ def es_search(keyword):
 
 def post_lex(text):
     response = lex_client.post_text(
-        botName="photosearch",
+        botName="photo_keyword_key",
         botAlias="alpha",
-        userId="chenli",
+        userId=str(time.time()),
         inputText=text)
     return response
     
