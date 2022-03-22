@@ -17,7 +17,7 @@ Resources:
         S3Event:
           Type: S3
           Properties:
-            Bucket:
+            Bucket: photo-s3-chenli
             Events: s3:ObjectCreated:*
       Environment:
         Variables:
