@@ -1,2 +1,2 @@
 # aws-photo-index
-retr
+retry
