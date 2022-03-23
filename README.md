@@ -26,9 +26,6 @@
 
 [Opensearch](https://opensearch.org/docs/latest/opensearch/query-dsl/full-text/#match)
 
-git token 30 days:
-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
-
 [API gateway query string](https://stackoverflow.com/questions/31329958/how-to-pass-a-querystring-or-route-parameter-to-aws-lambda-from-amazon-api-gatew)
 
 [API Gateway CloudWatch Log](https://aws.amazon.com/premiumsupport/knowledge-center/api-gateway-cloudwatch-logs/)
