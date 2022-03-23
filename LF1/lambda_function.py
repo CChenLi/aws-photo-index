@@ -17,7 +17,7 @@ region = 'us-east-1' # For example, us-west-1
 service = 'es'
 credentials = boto3.Session().get_credentials()
 awsauth = AWS4Auth(credentials.access_key, credentials.secret_key, region, service, session_token=credentials.token)
-host = "search-photo-search-hyksul2bdeyoenyvplrowctj74.us-east-1.es.amazonaws.com"
+host = "search-cf-photo-index-cowatq65lo2rfoellrog6aaf4q.us-east-1.es.amazonaws.com"
 es_client = OpenSearch(
     hosts = [{'host': host, 'port': 443}],
     http_auth = awsauth,
