@@ -20,6 +20,25 @@
 7. Enable CORS. Add OPTIONS method and add a 200 Method Response. So that when api is call, options can response and tell client what origin, header, and methods are allowed
 8. If you have a media in body, add the media type in setting on the left bar below Dashboard
 
+## Steps for new deploy
+1. Create New S3, public access, public read policy
+2. Create New Opensearch index, make role of LF as master
+3. deploy Api Gateway using YAML, Method Request will be generated automatically by YAML
+	- Add Integration for GET, PUT
+	- For GET
+		- Add LF2 as integration
+		- Add mapping template application/json Method Request Passthrough
+	- For PUT
+		- Append x-amz-meta-customLabels to OPTIONS allowed headers
+		- Add S3 as integration, add exection role has S3::PutObject permission
+		- Add path override and add bucket, key to url path parameters, assign x-amz-meta-customLabels in HTTP Headers
+	- Enable CORS
+	- In setting, add media type image/jpeg image/png
+	- chat.js
+		- Change `upload URL` to new api gateway and `folder` to new S3
+	- LF1: change Opensearch host, add S3 create as trigger
+	- LF2: change Openserach host and S3 url to get image from new S3
+
 ## Refs
 [Deploy package](https://docs.aws.amazon.com/lambda/latest/dg/python-package.html)
 `zip -g my-deployment-package.zip es.py`
