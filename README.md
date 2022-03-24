@@ -1,5 +1,15 @@
 # aws-photo-index
 
+- Automated Picture Classification and AWS Lex integrated Search Engine.
+- When a photo is upload, a series of tag is detected and stored in S3.
+- When query with inputtext, the AWS Lex will process the inputtext respond with related photos.
+- One example with vanilla lex bot that only trained with `show me <keyword>` is deployed at [Here](http://cf-photo-frontend.s3-website-us-east-1.amazonaws.com)
+- Try or upload a random picture and search with the `show me <class>` that you think the picture belongs to.
+- eg. upload a picture of a rocket and search with `show me rocket`
+
+### Infrastructure Overview
+- <img src="images/Infrastructure.png" alt="drawing" style="width:400px;"/>
+
 ## Express Deploy using [CloudFormation](https://aws.amazon.com/cloudformation)
 ### Infrastructure Setup
 1. Download CFdeploy
@@ -8,7 +18,8 @@
 4. Create a [API Key](https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-setup-api-key-with-console.html), copy the **API Key ID** for step 6 and **API Key** for step 10.
 5. Go to AWS [CloudFormation](https://aws.amazon.com/cloudformation), create new stack using `CloudFormation.json` as template. 
 6. There are three parameters to configure the Formation. Make sure to replace `ApikeyID` and `SourceBucket` with the one you created. 
-7. `EsKmsKeyId` defines how elastic search perform encryption [AWS KMS](https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#kms_keys), keep the default value. Start the build infrastructure. The build takes about 15 minutes. Now the server is ready to handle requests.
+7. `EsKmsKeyId` defines how elastic search perform encryption [AWS KMS](https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#kms_keys), keep the default value. Start the build infrastructure. The build takes about 15 minutes.
+8. Note, For customized usage, the Build of [Lex bot](https://docs.aws.amazon.com/lex/latest/dg/what-is.html) is not included in `CloudFormation.json`. Build a lex bot on AWS Console and replace it's `name` and `alia` to LF2 before use.
 ### Front Website Setup (Optional)
 9. In api gateway console, go to `stage` -> `Alpha` -> `Generate JS SDK`. Use the downloaded SDK to repace the existing one.
 10. Replace the api key in line 14, 174 of `frontend/assets/js/chat.js` with the One created
@@ -16,7 +27,24 @@
 12. Now you can interact with the infrasture in `frontend/index.html`. The backen is initiated with no photos. manually upload to `photos-bucket-fromcf-<stack name>` or use the upload conosle in the `index.html`.
 13. ~~SET up API KEY to have fine control of traffic. When deploy ends, go to `API Gateway` -> `CLOUDFORMATION AI Photo Search`. Create New [API KEY and Usage Plan](https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-create-usage-plans.html). Attach Usage Plan to `CLOUDFORMATION AI Photo Search/Alpha`. Attach the API KEY to Usage Plan. Go to Method Request under `get` and `put`. Change `API KEY REQUIRED` to `true`.~~ (Automated)
 
-	
+## Steps for hands on deploy
+1. Create New S3, public access, public read policy
+2. Create New Opensearch index, make role of LF as master
+3. deploy Api Gateway using YAML, Method Request will be generated automatically by YAML
+	- Add Integration for GET, PUT
+	- For GET
+		- Add LF2 as integration
+		- Add mapping template application/json Method Request Passthrough
+	- For PUT
+		- Append x-amz-meta-customLabels to OPTIONS allowed headers
+		- Add S3 as integration, add exection role has S3::PutObject permission
+		- Add path override and add bucket, key to url path parameters, assign x-amz-meta-customLabels in HTTP Headers
+	- Enable CORS
+	- In setting, add media type image/jpeg image/png
+	- chat.js
+		- Change `upload URL` to new api gateway and `folder` to new S3
+	- LF1: change Opensearch host, add S3 create as trigger
+	- LF2: change Openserach host and S3 url to get image from new S3
 
 ## API GATEWAY SET UP:
 1. Create or import Yaml
@@ -38,25 +66,6 @@
 6. If Integration type is AWS service, make sure the execution role has permission you need
 7. Enable CORS. Add OPTIONS method and add a 200 Method Response. So that when api is call, options can response and tell client what origin, header, and methods are allowed
 8. If you have a media in body, add the media type in setting on the left bar below Dashboard
-
-## Steps for new deploy
-1. Create New S3, public access, public read policy
-2. Create New Opensearch index, make role of LF as master
-3. deploy Api Gateway using YAML, Method Request will be generated automatically by YAML
-	- Add Integration for GET, PUT
-	- For GET
-		- Add LF2 as integration
-		- Add mapping template application/json Method Request Passthrough
-	- For PUT
-		- Append x-amz-meta-customLabels to OPTIONS allowed headers
-		- Add S3 as integration, add exection role has S3::PutObject permission
-		- Add path override and add bucket, key to url path parameters, assign x-amz-meta-customLabels in HTTP Headers
-	- Enable CORS
-	- In setting, add media type image/jpeg image/png
-	- chat.js
-		- Change `upload URL` to new api gateway and `folder` to new S3
-	- LF1: change Opensearch host, add S3 create as trigger
-	- LF2: change Openserach host and S3 url to get image from new S3
 
 ## Refs
 [Deploy package](https://docs.aws.amazon.com/lambda/latest/dg/python-package.html)
