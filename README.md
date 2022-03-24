@@ -8,8 +8,8 @@
 4. Create a [API Key](https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-setup-api-key-with-console.html), copy the **API Key ID** for step 6 and **API Key** for step 10.
 5. Go to AWS [CloudFormation](https://aws.amazon.com/cloudformation), create new stack using `CloudFormation.json` as template. 
 6. There are three parameters to configure the Formation. Make sure to replace `ApikeyID` and `SourceBucket` with the one you created. 
-7. `EsKmsKeyId` defines how elastic search perform encryption [AWS KMS](https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#kms_keys), keep the default value. Start the build infrastructure. The build takes about 15 minutes.
-### Front End Setup
+7. `EsKmsKeyId` defines how elastic search perform encryption [AWS KMS](https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#kms_keys), keep the default value. Start the build infrastructure. The build takes about 15 minutes. Now the server is ready to handle requests.
+### Front Website Setup (Optional)
 9. In api gateway console, go to `stage` -> `Alpha` -> `Generate JS SDK`. Use the downloaded SDK to repace the existing one.
 10. Replace the api key in line 14, 174 of `frontend/assets/js/chat.js` with the One created
 11. Go to S3 console, there will be a new bucket named `photos-bucket-fromcf-<stack name>`. In `chat.js`, set the vallue of `folder` in line 177 with the name of new generated S3 bucket. Replace the `url` in line 168 with `<Invoke URL>/upload`. `<Invoke URL>` can be find in api gateway under stage `Alpha`.
