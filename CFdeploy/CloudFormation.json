@@ -1,6 +1,18 @@
 {
     "AWSTemplateFormatVersion": "2010-09-09",
     "Description": "Cloud architecture for photo upload and search engine Deployed on AWS",
+    "Parameters": {
+        "ApikeyID": {
+            "Type": "String",
+            "Default": "4as8vlztp4",
+            "Description": "The API KEY ID for API Gateway state. The corresponding API key is required to make request to API"
+        },
+        "EsKmsKeyId": {
+            "Type": "String",
+            "Default": "62ae07ef-0b1f-450c-9f94-1455357359fc",
+            "Description": "AWS Key Management Service, specify the key assign to elasticsearch"
+        }
+    },
     "Resources": {
         "indexPhoto": {
             "Type": "AWS::Lambda::Function",
@@ -29,7 +41,12 @@
                     }
                 },
                 "Handler": "lambda_function.lambda_handler",
-                "Role": "arn:aws:iam::682475076944:role/photo-LF",
+                "Role": {
+                    "Fn::GetAtt": [
+                        "ProjectMaster",
+                        "Arn"
+                    ]
+                },
                 "Timeout": 30,
                 "Runtime": "python3.8",
                 "FunctionName": "LF1-FROMCF"
@@ -68,7 +85,12 @@
                     }
                 },
                 "Handler": "lambda_function.lambda_handler",
-                "Role": "arn:aws:iam::682475076944:role/photo-LF",
+                "Role": {
+                    "Fn::GetAtt": [
+                        "ProjectMaster",
+                        "Arn"
+                    ]
+                },
                 "Timeout": 30,
                 "Runtime": "python3.8",
                 "FunctionName": "LF2-FROMCF"
@@ -160,6 +182,11 @@
                                         }
                                     }
                                 },
+                                "security": [
+                                    {
+                                        "api_key": []
+                                    }
+                                ],
                                 "x-amazon-apigateway-integration": {
                                     "httpMethod": "POST",
                                     "uri": {
@@ -289,8 +316,18 @@
                                         }
                                     }
                                 },
+                                "security": [
+                                    {
+                                        "api_key": []
+                                    }
+                                ],
                                 "x-amazon-apigateway-integration": {
-                                    "credentials": "arn:aws:iam::682475076944:role/APIputS3",
+                                    "credentials": {
+                                        "Fn::GetAtt": [
+                                            "ProjectMaster",
+                                            "Arn"
+                                        ]
+                                    },
                                     "httpMethod": "PUT",
                                     "uri": "arn:aws:apigateway:us-east-1:s3:path/{bucket}/{key}",
                                     "responses": {
@@ -396,12 +433,57 @@
                                     }
                                 }
                             }
+                        },
+                        "securitySchemes": {
+                            "api_key": {
+                                "type": "apiKey",
+                                "name": "x-api-key",
+                                "in": "header"
+                            }
                         }
                     },
                     "x-amazon-apigateway-binary-media-types": [
                         "image/jpeg",
                         "image/png"
                     ]
+                }
+            }
+        },
+        "usagePlan": {
+            "Type": "AWS::ApiGateway::UsagePlan",
+            "DependsOn": [
+                "ServerlessRestApiDeploymentb2888a1f04"
+            ],
+            "Properties": {
+                "ApiStages": [
+                    {
+                        "ApiId": {
+                            "Ref": "ServerlessRestApi"
+                        },
+                        "Stage": "Alpha"
+                    }
+                ],
+                "Description": "Basic plan",
+                "Quota": {
+                    "Limit": 10000,
+                    "Period": "MONTH"
+                },
+                "Throttle": {
+                    "BurstLimit": 5000,
+                    "RateLimit": 10000
+                },
+                "UsagePlanName": "Basic plan"
+            }
+        },
+        "usagePlanKey": {
+            "Type": "AWS::ApiGateway::UsagePlanKey",
+            "Properties": {
+                "KeyId": {
+                    "Ref": "ApikeyID"
+                },
+                "KeyType": "API_KEY",
+                "UsagePlanId": {
+                    "Ref": "usagePlan"
                 }
             }
         },
@@ -530,7 +612,9 @@
                                 "AWS": "*"
                             },
                             "Action": "es:*",
-                            "Resource": "arn:aws:iam::682475076944:domain/cloudform-es/*"
+                            "Resource": {
+                                "Fn::Sub": "arn:aws:iam:${AWS::AccountId}:domain/cloudform-esr/*"
+                            }
                         }
                     ]
                 },
@@ -548,15 +632,55 @@
                 },
                 "EncryptionAtRestOptions": {
                     "Enabled": true,
-                    "KmsKeyId": "62ae07ef-0b1f-450c-9f94-1455357359fc"
+                    "KmsKeyId": {
+                        "Ref": "EsKmsKeyId"
+                    }
                 },
                 "AdvancedSecurityOptions": {
                     "Enabled": true,
                     "InternalUserDatabaseEnabled": false,
                     "MasterUserOptions": {
-                        "MasterUserARN": "arn:aws:iam::682475076944:role/photo-LF"
+                        "MasterUserARN": {
+                            "Fn::GetAtt": [
+                                "ProjectMaster",
+                                "Arn"
+                            ]
+                        }
                     }
                 }
+            }
+        },
+        "ProjectMaster": {
+            "Type": "AWS::IAM::Role",
+            "Properties": {
+                "Description": "Master role for the project",
+                "RoleName": "photoMaster",
+                "AssumeRolePolicyDocument": {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                        {
+                            "Effect": "Allow",
+                            "Principal": {
+                                "Service": [
+                                    "apigateway.amazonaws.com",
+                                    "lambda.amazonaws.com"
+                                ]
+                            },
+                            "Action": "sts:AssumeRole"
+                        }
+                    ]
+                },
+                "ManagedPolicyArns": [
+                    "arn:aws:iam::aws:policy/AmazonS3FullAccess",
+                    "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+                    "arn:aws:iam::aws:policy/AmazonLexFullAccess",
+                    "arn:aws:iam::aws:policy/AmazonAPIGatewayInvokeFullAccess",
+                    "arn:aws:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs",
+                    "arn:aws:iam::aws:policy/CloudWatchFullAccess",
+                    "arn:aws:iam::aws:policy/AmazonRekognitionFullAccess",
+                    "arn:aws:iam::aws:policy/AmazonAPIGatewayAdministrator",
+                    "arn:aws:iam::aws:policy/AmazonOpenSearchServiceFullAccess"
+                ]
             }
         }
     }
