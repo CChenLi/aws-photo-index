@@ -1,5 +1,15 @@
 # aws-photo-index
 
+## Express Deploy using [CloudFormation](https://aws.amazon.com/cloudformation)
+1. Download CFdeploy
+2. Create IAM execution role for Lambda, trust service choose Lambda. Attach S3::getobject, S3::putobject, Lex::puttext, rekognition::detectlabel permission. Copy the ARN of the created role. Replace the arn in line 33, 71, 557 of `CloudFormation.json` with new ARN. (Or add the creation of this role to `CloudFormation.json` See [AWS::IAM::role](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-iam-role.html))
+3. Create a S3 bucket, put LF1.zip and LF2.zip in the bucket. Replace the BucketName in line 9, 42 in `CloudFormation.json` with the name of new bucket.
+4. Go to AWS [CloudFormation](https://aws.amazon.com/cloudformation), create new stack using `CloudFormation.json` as template.
+5. When deploy ends, go to `API Gateway` -> `CLOUDFORMATION AI Photo Search`. Create New [API KEY and Usage Plan](https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-create-usage-plans.html). Attach Usage Plan to `CLOUDFORMATION AI Photo Search/Alpha`. Attach the API KEY to Usage Plan. 
+> Setup of API KEY and Usage plan were not integrate in `CloudFormation.json` for security reasons.
+7. Replace the api key in line 14, 174 of `frontend/assets/js/chat.js` with the One created in step 5.
+8. Now you can interact with the infrasture in `frontend/index.html`
+
 ## API GATEWAY SET UP:
 1. Create or import Yaml
 2. Create Resources
