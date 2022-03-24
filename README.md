@@ -3,7 +3,7 @@
 - Automated Picture Classification and AWS Lex integrated Search Engine.
 - When a photo is uploaded, a series of tags is detected and stored in S3.
 - When query with inputtext, the AWS Lex will process the inputtext and respond with related photos.
-- [Here](http://cf-photo-frontend.s3-website-us-east-1.amazonaws.com) deployed one with vanilla lex bot that only trained with `show me <keyword>`
+- [Here](http://cf-photo-frontend.s3-website-us-east-1.amazonaws.com) deployed one example with vanilla lex bot that only trained with `show me <keyword>`
 	- Try or upload a random picture and search with the `show me <class>` that you think the picture belongs to.
 	- eg. upload a picture of a rocket and search with `show me rocket`
 
