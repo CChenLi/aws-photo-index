@@ -1,15 +1,21 @@
 # aws-photo-index
 
 ## Express Deploy using [CloudFormation](https://aws.amazon.com/cloudformation)
+### Infrastructure Setup
 1. Download CFdeploy
-2. Create IAM execution role for Lambda, trust service choose Lambda. Attach S3::getobject, S3::putobject, Lex::puttext, rekognition::detectlabel permission. Copy the ARN of the created role. Replace the arn in line 33, 71, 557 of `CloudFormation.json` with new ARN. (Or add the creation of this role to `CloudFormation.json` See [AWS::IAM::role](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-iam-role.html))
-3. Create a S3 bucket, put LF1.zip and LF2.zip in the bucket. Replace the BucketName in line 9, 42 in `CloudFormation.json` with the name of new bucket.
-4. Go to AWS [CloudFormation](https://aws.amazon.com/cloudformation), create new stack using `CloudFormation.json` as template.
-5. In api gateway console, go to `stage` -> `Alpha` -> `SDK` -> `Generate JS SDK`. Use the downloaded SDK to repace the existing one.
-6. Go to S3 console, there will be a new bucket named `photos-bucket-fromcf-<stack name>`. `In `chat.js`, set the vallue of `folder` in line 177 with the name of new generated S3 bucket. Replace the `url` in line 168 with `<Invoke URL>/upload`. `<Invoke URL>` can be find in api gateway under stage `Alpha`.
-7. Now you can interact with the infrasture in `frontend/index.html`. The backen is initiated with no photos. manually upload to `photos-bucket-fromcf-<stack name>` or use the upload conosle in the `index.html`.
-8. *Optional* SET up API KEY. When deploy ends, go to `API Gateway` -> `CLOUDFORMATION AI Photo Search`. Create New [API KEY and Usage Plan](https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-create-usage-plans.html). Attach Usage Plan to `CLOUDFORMATION AI Photo Search/Alpha`. Attach the API KEY to Usage Plan. Go to Method Request under `get` and `put`. Change `API KEY REQUIRED` to `true`. Replace the api key in line 14, 174 of `frontend/assets/js/chat.js` with the One created.
-> Setup of API KEY and Usage plan were not integrate in `CloudFormation.json` for security reasons.
+2. ~~Create IAM execution role for Lambda, trust service choose Lambda. Attach S3::getobject, S3::putobject, Lex::puttext, rekognition::detectlabel permission. Copy the ARN of the created role. Replace the arn in line 33, 71, 557 of `CloudFormation.json` with new ARN. (Or add the creation of this role to `CloudFormation.json` See [AWS::IAM::role](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-iam-role.html))~~ (Automated)
+3. Create a [S3 bucket](https://docs.aws.amazon.com/AmazonS3/latest/userguide/creating-bucket.html), put LF1.zip and LF2.zip in the bucket. Remember the **bucket name**
+4. Create a [API Key](https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-setup-api-key-with-console.html), copy the **API Key ID** for step 6 and **API Key** for step 10.
+5. Go to AWS [CloudFormation](https://aws.amazon.com/cloudformation), create new stack using `CloudFormation.json` as template. 
+6. There are three parameters to configure the Formation. Make sure to replace `ApikeyID` and `SourceBucket` with the one you created. 
+7. `EsKmsKeyId` defines how elastic search perform encryption [AWS KMS](https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#kms_keys), keep the default value. Start the build infrastructure. The build takes about 15 minutes.
+### Front End Setup
+9. In api gateway console, go to `stage` -> `Alpha` -> `Generate JS SDK`. Use the downloaded SDK to repace the existing one.
+10. Replace the api key in line 14, 174 of `frontend/assets/js/chat.js` with the One created
+11. Go to S3 console, there will be a new bucket named `photos-bucket-fromcf-<stack name>`. In `chat.js`, set the vallue of `folder` in line 177 with the name of new generated S3 bucket. Replace the `url` in line 168 with `<Invoke URL>/upload`. `<Invoke URL>` can be find in api gateway under stage `Alpha`.
+12. Now you can interact with the infrasture in `frontend/index.html`. The backen is initiated with no photos. manually upload to `photos-bucket-fromcf-<stack name>` or use the upload conosle in the `index.html`.
+13. ~~SET up API KEY to have fine control of traffic. When deploy ends, go to `API Gateway` -> `CLOUDFORMATION AI Photo Search`. Create New [API KEY and Usage Plan](https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-create-usage-plans.html). Attach Usage Plan to `CLOUDFORMATION AI Photo Search/Alpha`. Attach the API KEY to Usage Plan. Go to Method Request under `get` and `put`. Change `API KEY REQUIRED` to `true`.~~ (Automated)
+
 	
 
 ## API GATEWAY SET UP:
