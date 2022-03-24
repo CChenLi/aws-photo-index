@@ -26,7 +26,7 @@
 	- ex. `key` = `method.request.path.object`	`path.object` is from 2.
 	- Use Path override to add path to the request 
 		- ex. {bucket}/{key}	will be added to end of url of the service that api gateway sent request to
-	- If the next service don't have a Mapping Templates, add one. Generally application/json Method Request Passthrough will enable you to get these parameters in the service. https://stackoverflow.com/questions/31329958/how-to-pass-a-querystring-or-route-parameter-to-aws-lambda-from-amazon-api-gatew
+	- If the next service don't have a Mapping Templates, add one. Generally application/json Method Request Passthrough will enable you to get these parameters in the service. See [Request Template](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-apitgateway-method-integration.html#cfn-apigateway-method-integration-requesttemplates)
 	- The below is the request content API gateway sent to the service you specified in Ingeration type
 	- <img src="images/api5.jpg" alt="drawing" style="width:400px;"/>
 6. If Integration type is AWS service, make sure the execution role has permission you need
