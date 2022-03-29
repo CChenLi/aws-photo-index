@@ -1,5 +1,5 @@
 # aws-photo-index
-test
+test!
 - Automated Picture Classification and AWS Lex integrated Search Engine.
 - When a photo is uploaded, a series of tags is detected and stored in S3.
 - When query with inputtext, the AWS Lex will process the inputtext and respond with related photos.
