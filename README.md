@@ -1,4 +1,8 @@
 # aws-photo-index
+
+### Infrastructure Overview
+- <img src="images/Infrastructure.png" alt="drawing" style="width:400px;"/>
+
 - Automated Picture Classification and AWS Lex integrated Search Engine.
 - When a photo is uploaded, a series of tags is detected and stored in S3.
 - When query with inputtext, the AWS Lex will process the inputtext and respond with related photos.
@@ -7,9 +11,6 @@
 	- eg. upload a picture of a rocket and search with `show me rocket`
 
 ## Use the follow method to build your own customized one
-
-### Infrastructure Overview
-- <img src="images/Infrastructure.png" alt="drawing" style="width:400px;"/>
 
 ## Express Deploy using [CloudFormation](https://aws.amazon.com/cloudformation)
 ### Infrastructure Setup
